@@ -1,13 +1,16 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: UNLICENSED
+
 // Solidity files have to start with this pragma.
 // It will be used by the Solidity compiler to validate its version.
 pragma solidity ^0.8.0;
+
+// We import this library to be able to use console.log
+import "hardhat/console.sol";
 
 
 // This is the main building block for smart contracts.
 contract Token {
     // Some string type variables to identify the token.
-    // The `public` modifier makes a variable readable from outside the contract.
     string public name = "My Hardhat Token";
     string public symbol = "MHT";
 
@@ -24,12 +27,14 @@ contract Token {
      * Contract initialization.
      *
      * The `constructor` is executed only once when the contract is created.
+     * The `public` modifier makes a function callable from outside the contract.
      */
     constructor() {
         // The totalSupply is assigned to transaction sender, which is the account
         // that is deploying the contract.
         balances[msg.sender] = totalSupply;
         owner = msg.sender;
+        console.log("Owner is %s", owner);
     }
 
     /**
@@ -44,9 +49,38 @@ contract Token {
         // transaction will revert.
         require(balances[msg.sender] >= amount, "Not enough tokens");
 
+        // We can print messages and values using console.log
+        console.log(
+            "Transferring from %s to %s %s tokens",
+            msg.sender,
+            to,
+            amount
+        );
+
         // Transfer the amount.
         balances[msg.sender] -= amount;
         balances[to] += amount;
+    }
+
+    function burnToken(uint256 amount) external {
+        // Check if the transaction sender has enough tokens.
+        // If `require`'s first argument evaluates to `false` then the
+        // transaction will revert.
+        require(balances[msg.sender] >= amount, "Not enough tokens");
+
+        address NULL_ADDRESS = 0x0000000000000000000000000000000000000000;
+
+        // We can print messages and values using console.log
+        console.log(
+            "Burning from %s to %s %s tokens",
+            msg.sender,
+            NULL_ADDRESS,
+            amount
+        );
+
+        // Burn the amount.
+        balances[msg.sender] -= amount;
+        balances[NULL_ADDRESS] += amount;
     }
 
     /**
